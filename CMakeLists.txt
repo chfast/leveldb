@@ -34,9 +34,21 @@ include(CheckIncludeFile)
 check_include_file("unistd.h" HAVE_UNISTD_H)
 
 include(CheckLibraryExists)
-check_library_exists(crc32c crc32c_value "" HAVE_CRC32C)
-check_library_exists(snappy snappy_compress "" HAVE_SNAPPY)
-check_library_exists(tcmalloc malloc "" HAVE_TCMALLOC)
+
+if (HUNTER_ENABLED)
+  hunter_add_package(crc32c)
+  find_package(crc32c CONFIG REQUIRED)
+  add_library(crc32c ALIAS crc32c::crc32c)
+  set(HAVE_CRC32C TRUE CACHE INTERNAL "crc32c dependency available")
+
+  set(HAVE_SNAPPY FALSE CACHE INTERNAL "snappy dependency available")
+
+  set(HAVE_TCMALLOC FALSE CACHE INTERNAL "tcmalloc dependency available")
+else (HUNTER_ENABLED)
+  check_library_exists(crc32c crc32c_value "" HAVE_CRC32C)
+  check_library_exists(snappy snappy_compress "" HAVE_SNAPPY)
+  check_library_exists(tcmalloc malloc "" HAVE_TCMALLOC)
+endif (HUNTER_ENABLED)
 
 include(CheckCXXSymbolExists)
 # Using check_cxx_symbol_exists() instead of check_c_symbol_exists() because
